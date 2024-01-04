@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Linienanimation</title>
+        <style>
+            body {
+                margin: 0;
+                background-color: black;
+                overflow: hidden;
+            }
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            // Canvas-Element auswählen
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+
+            // Funktion zum Aktualisieren der Position der Striche
+            function updatePosition() {
+                // Aktuelle Breite und Höhe des Browserfensters ermitteln
+                var width = window.innerWidth;
+                var height = window.innerHeight;
+
+                // Canvas-Größe anpassen
+                canvas.width = width;
+                canvas.height = height;
+
+                // Strichbreite festlegen
+                var lineThickness = 0.25 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+                // Startpunkt des Scripts festlegen
+                var start_date = new Date(1983, 5, 1);
+
+                // Geschwindigkeiten der Linien definieren
+                var speed_line1 = width / (24 * 60 * 60); // 1 Tag für Durchquerung des Bildschirms
+                var speed_line2 = width / 60; // 1 Minute für Durchquerung des Bildschirms
+                var speed_line3 = width / (365.25 * 24 * 60 * 60); // Ein astronomisches Jahr für Durchquerung des Bildschirms
+                var speed_line4 = 360 / (60 * 525600000); // 1000 Jahre für 360 Grad Drehung
+
+                // Funktion zur Aktualisierung der Position der Striche
+                function drawLines() {
+                    // Aktuelle Zeit ermitteln
+                    var current_time = new Date();
+                    var time_diff = current_time - start_date;
+
+                    // Aktualisiere Position des ersten Strichs (1 Stunde)
+                    var position1 = ((time_diff / 1000) * speed_line1) % width;
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.beginPath();
+                    ctx.moveTo(position1, 0);
+                    ctx.lineTo(position1, height);
+                    ctx.lineWidth = lineThickness;
+                    ctx.strokeStyle = "white";
+                    ctx.stroke();
+
+                    // Aktualisiere Position des zweiten Strichs (1 Minute)
+                    var position2 = ((time_diff / 1000) * speed_line2) % width;
+                    ctx.beginPath();
+                    ctx.moveTo(position2, 0);
+                    ctx.lineTo(position2, height);
+                    ctx.stroke();
+
+                    // Aktualisiere Position des dritten Strichs (astronomisches Jahr)
+                    var position3 = ((time_diff / 1000) * speed_line3) % width;
+                    ctx.beginPath();
+                    ctx.moveTo(position3, 0);
+                    ctx.lineTo(position3, height);
+                    ctx.stroke();
+
+                    // Aktualisiere Position der vierten Strichs (360 Grad Drehung in 1 Minute)
+                    var centerX = width / 2;
+                    var centerY = height / 2;
+                    var diagonal = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+                    var line4Length = diagonal * 0.5;
+                    var rotationAngle = ((time_diff / 1000) * speed_line4) % 360;
+                    var line4StartX = centerX;
+                    var line4StartY = centerY;
+                    var line4EndX = line4StartX + line4Length * Math.cos((rotationAngle * Math.PI) / 180);
+                    var line4EndY = line4StartY - line4Length * Math.sin((rotationAngle * Math.PI) / 180);
+                    ctx.beginPath();
+                    ctx.moveTo(line4StartX, line4StartY);
+                    ctx.lineTo(line4EndX, line4EndY);
+                    ctx.stroke();
+
+                    // Aktualisiere Position der fünften Strichs (360 Grad Drehung in 1 Minute, gegenüber von Line 4)
+                    var line5StartX = centerX;
+                    var line5StartY = centerY;
+                    var line5EndX = line5StartX - line4Length * Math.cos((rotationAngle * Math.PI) / 180);
+                    var line5EndY = line5StartY + line4Length * Math.sin((rotationAngle * Math.PI) / 180);
+                    ctx.beginPath();
+                    ctx.moveTo(line5StartX, line5StartY);
+                    ctx.lineTo(line5EndX, line5EndY);
+                    ctx.stroke();
+
+                    // Loop für die Aktualisierung der Positionen
+                    requestAnimationFrame(drawLines);
+                }
+
+                // Initialisiere das Zeichnen der Linien
+                drawLines();
+            }
+
+            // Funktion wird aufgerufen, wenn das Fenster geladen wurde oder die Größe verändert wurde
+            window.addEventListener("load", updatePosition);
+            window.addEventListener("resize", updatePosition);
+        </script>
+    </body>
+</html>
