@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Linienanimation</title>
+        <title>TIM3</title>
         <style>
             body {
                 margin: 0;
@@ -34,14 +34,30 @@
                 // Strichbreite festlegen
                 var lineThickness = 0.25 * parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-                // Startpunkt des Scripts festlegen
-                var start_date = new Date(1983, 5, 1);
+                // Aktuelle Zeit ermitteln
+                var current_time = new Date();
+
+                // Startzeit für jeden Aufrufer auf den ersten Januar eines jeden Jahres um 0 Uhr UTC
+                var start_date = new Date(current_time.getUTCFullYear(), 0, 1, 0, 0, 0, 0);
+
+                var time_diff = current_time - start_date;
+
+                // Startzeitpunkt für line4 auf den 01.06.1983
+                var start_date_line4 = new Date(1915, 11, 25);
+
+                var time_diff4 = current_time - start_date_line4;
 
                 // Geschwindigkeiten der Linien definieren
                 var speed_line1 = width / (24 * 60 * 60); // 1 Tag für Durchquerung des Bildschirms
                 var speed_line2 = width / 60; // 1 Minute für Durchquerung des Bildschirms
                 var speed_line3 = width / (365.25 * 24 * 60 * 60); // Ein astronomisches Jahr für Durchquerung des Bildschirms
                 var speed_line4 = 360 / (60 * 525600000); // 1000 Jahre für 360 Grad Drehung
+
+                // Geschwindigkeit von Betelgeuze relativ zur Erde (in Kilometern pro Sekunde)
+                var speed_of_betelgeuze = 45.5;
+
+                // Berechne die relative Geschwindigkeit auf Betelgeuze für Durchquerung der Breite des Canvas in einer Minute
+                var speed_line5 = (speed_of_betelgeuze / 299792.458) * (width / 60);
 
                 // Funktion zur Aktualisierung der Position der Striche
                 function drawLines() {
@@ -78,7 +94,7 @@
                     var centerY = height / 2;
                     var diagonal = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
                     var line4Length = diagonal * 0.5;
-                    var rotationAngle = ((time_diff / 1000) * speed_line4) % 360;
+                    var rotationAngle = ((time_diff4 / 1000) * speed_line4) % 360;
                     var line4StartX = centerX;
                     var line4StartY = centerY;
                     var line4EndX = line4StartX + line4Length * Math.cos((rotationAngle * Math.PI) / 180);
@@ -89,13 +105,20 @@
                     ctx.stroke();
 
                     // Aktualisiere Position der fünften Strichs (360 Grad Drehung in 1 Minute, gegenüber von Line 4)
-                    var line5StartX = centerX;
-                    var line5StartY = centerY;
-                    var line5EndX = line5StartX - line4Length * Math.cos((rotationAngle * Math.PI) / 180);
-                    var line5EndY = line5StartY + line4Length * Math.sin((rotationAngle * Math.PI) / 180);
+                    var line5StartX = line4EndX; // Verwende den Endpunkt von line4 als Startpunkt für line5
+                    var line5StartY = line4EndY;
+                    var line5EndX = centerX - line4Length * Math.cos((rotationAngle * Math.PI) / 180);
+                    var line5EndY = centerY + line4Length * Math.sin((rotationAngle * Math.PI) / 180);
                     ctx.beginPath();
                     ctx.moveTo(line5StartX, line5StartY);
                     ctx.lineTo(line5EndX, line5EndY);
+                    ctx.stroke();
+
+                    // Aktualisiere Position der sechsten Strichs (schnelle Linie)
+                    var position5 = ((time_diff / 1000) * speed_line5) % width;
+                    ctx.beginPath();
+                    ctx.moveTo(position5, 0);
+                    ctx.lineTo(position5, height);
                     ctx.stroke();
 
                     // Loop für die Aktualisierung der Positionen
